@@ -4,6 +4,7 @@ import Checkbox from 'expo-checkbox';
 import { AntDesign } from '@expo/vector-icons'
 import { MaterialIcons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { FontAwesome } from '@expo/vector-icons'
 import { Colors } from "../../constants/colors";
 import { formatTime } from "../../utils/helpers";
 import { useDispatch } from "react-redux"
@@ -11,6 +12,7 @@ import { RootState } from "../../redux/store/store";
 import { useSelector } from "react-redux"
 import { toggleTaskCompletion, deleteTask } from "../../redux/slices/taskSlice";
 import RightSwipeActions from "../SwipeAction/RightSwipeAction";
+import { useNavigation } from "@react-navigation/native";
 
 type cardItemPropsType = {
     title: string,
@@ -22,6 +24,8 @@ type cardItemPropsType = {
 
 const CardItem = ({ title, category, id, time, isLastItem }: cardItemPropsType) => {
     const { tasksId } = useSelector((state: RootState) => state.tasksReducer)
+
+    const navigation: any = useNavigation()
 
     const dispatch = useDispatch()
 
@@ -37,6 +41,12 @@ const CardItem = ({ title, category, id, time, isLastItem }: cardItemPropsType) 
 
     const deleteTasks = () => {
         dispatch(deleteTask({ taskId: id }))
+    }
+
+    const editTasks = () => {
+        navigation.navigate("NewTask", {
+            tasksId: id
+        })
     }
 
     const formattedTime = formatTime(time);
@@ -55,11 +65,18 @@ const CardItem = ({ title, category, id, time, isLastItem }: cardItemPropsType) 
         <GestureHandlerRootView style={{ flex: 1 }}>
             <Swipeable
                 renderRightActions={() => (
-                    <RightSwipeActions
-                        onPress={deleteTasks}
-                        Icon={<MaterialIcons name="delete" size={size} color="white" />}
-                        backgroundColor={Colors.primary800}
-                    />
+                    <>
+                        <RightSwipeActions
+                            onPress={deleteTasks}
+                            Icon={<MaterialIcons name="delete" size={size} color="white" />}
+                            backgroundColor={Colors.primary800}
+                        />
+                        <RightSwipeActions
+                            onPress={editTasks}
+                            Icon={<FontAwesome name="pencil-square-o" size={24} color="black" />}
+                        // backgroundColor={Colors.primary800}
+                        />
+                    </>
                 )}
             >
                 <View style={[styles.cardContent, !isLastItem && styles.borderBottom]}>

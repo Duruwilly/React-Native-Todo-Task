@@ -3,7 +3,7 @@ import { View, Pressable, useWindowDimensions } from 'react-native'
 interface RightSwipeActionsProps {
     onPress: () => void;
     Icon: React.ReactNode;
-    backgroundColor: string
+    backgroundColor?: string
 }
 
 const RightSwipeActions = ({ onPress, Icon, backgroundColor }: RightSwipeActionsProps) => {

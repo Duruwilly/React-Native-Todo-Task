@@ -40,6 +40,20 @@ const taskSlice = createSlice({
         state.tasksId = state.tasksId.filter((id) => id !== toggledTask.id);
       }
     },
+    updateTask: (state, action) => {
+      const updatedTask = action.payload;
+      const taskIndex = state.tasks.findIndex(
+        (item) => item.id === updatedTask.id
+      );
+      const completedTaskIndex = state.completedTask.findIndex(
+        (item) => item.id === updatedTask.id
+      );
+      if (taskIndex !== -1) {
+        state.tasks[taskIndex] = updatedTask;
+      } else if (completedTaskIndex !== -1) {
+        state.completedTask[completedTaskIndex] = updatedTask;
+      }
+    },
     deleteTask: (state, action) => {
       const { taskId } = action.payload;
       state.tasks = state.tasks.filter((item) => item.id !== taskId);
@@ -50,5 +64,6 @@ const taskSlice = createSlice({
   },
 });
 
-export const { addTask, toggleTaskCompletion, deleteTask } = taskSlice.actions;
+export const { addTask, toggleTaskCompletion, deleteTask, updateTask } =
+  taskSlice.actions;
 export default taskSlice.reducer;

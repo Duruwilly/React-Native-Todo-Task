@@ -18,26 +18,34 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker'
 import CategoryIcon from '../components/ui/CategoryIcon'
 import { formatTime } from '../utils/helpers'
-import { useDispatch } from "react-redux"
-import { addTask } from '../redux/slices/taskSlice'
+import { useDispatch, useSelector } from "react-redux"
+import { addTask, updateTask } from '../redux/slices/taskSlice'
 import { taskInputStateType } from '../common.type'
 import { MaterialIcons } from '@expo/vector-icons';
+import { RootState } from '../redux/store/store'
 
-const NewTask = ({ navigation }: any) => {
+const NewTask = ({ navigation, route }: any) => {
+    const { tasks, completedTask } = useSelector((state: RootState) => state.tasksReducer)
     const [showDate, setShowDate] = useState(false);
     const [showTime, setShowTime] = useState(false);
+
+    const taskId = route?.params?.tasksId
+
+    const isEditing = !!taskId
+
+    const taskItem = tasks.find((item) => item.id === taskId) || completedTask.find((item) => item.id === taskId)
 
     const { width } = useWindowDimensions()
 
     const date = new Date();
 
     const tasksInputStateSchema: taskInputStateType = {
-        title: "",
-        category: "",
-        date: date,
-        time: date,
-        note: "",
-        id: Math.floor(Math.random() * 10000).toString()
+        title: isEditing ? taskItem?.title ?? "" : "",
+        category: isEditing ? taskItem?.category ?? "" : "",
+        date: isEditing ? (taskItem?.date ? new Date(taskItem?.date) : date) : date,
+        time: isEditing ? (taskItem?.time ? new Date(taskItem?.time) : date) : date,
+        note: isEditing ? taskItem?.note ?? "" : "",
+        id: isEditing ? taskItem?.id ?? "" : Math.floor(Math.random() * 10000).toString()
     }
 
     const [tasksInputState, setTasksInputState] = useState(tasksInputStateSchema)
@@ -83,9 +91,15 @@ const NewTask = ({ navigation }: any) => {
                 setEmptyInputCheck(false)
             }, 3000)
         } else {
-            dispatch(addTask([tasksInputState]))
-            clearState()
-            navigation.navigate('TodoList')
+            if (!isEditing) {
+                dispatch(addTask([tasksInputState]))
+                clearState()
+                navigation.navigate('TodoList')
+            } else {
+                dispatch(updateTask(tasksInputState))
+                clearState()
+                navigation.navigate("TodoList")
+            }
         }
     }
 
@@ -182,7 +196,7 @@ const NewTask = ({ navigation }: any) => {
                                         />
                                     )}
                                     <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-                                        <Text style={{ fontSize: 15, fontWeight: "500" }}>{tasksInputState.date.toLocaleDateString()}</Text>
+                                        <Text style={{ fontSize: 15, fontWeight: "500" }}>{tasksInputState?.date?.toLocaleDateString()}</Text>
                                         <MaterialCommunityIcons name="calendar-today" size={24} color={Colors.primary800} />
                                     </View>
                                 </Pressable>
